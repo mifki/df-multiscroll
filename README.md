@@ -8,4 +8,4 @@ Set VSYNC in DF init.txt to YES for better visual results.
 
 Vitaly Pronkin aka mifki <pronvit@me.com>
 
-[Home Page / Sources](https://github.com/mifki/df-multiscroll/releases) -- [Latest Release](https://github.com/mifki/df-multiscroll/releases) -- [Discussion](http://www.bay12forums.com/smf/index.php?topic=138856.0) -- [Report an Issue](https://github.com/mifki/df-multiscroll/issues)
+[Home Page / Sources](https://github.com/mifki/df-multiscroll) -- [Latest Release](https://github.com/mifki/df-multiscroll/releases) -- [Discussion](http://www.bay12forums.com/smf/index.php?topic=138856.0) -- [Report an Issue](https://github.com/mifki/df-multiscroll/issues)
