@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <objc/runtime.h>
 #include <stdint.h>
 #include <iostream>
 #include <map>
@@ -24,7 +25,6 @@
 #include "df/graphic.h"
 #include "df/enabler.h"
 #include "df/viewscreen_dwarfmodest.h"
-#import <objc/runtime.h>
 
 using df::global::world;
 using std::string;
@@ -71,7 +71,7 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
         int my = world->map.y_count_block * 16;
         int w = gps->dimx, h = gps->dimy;
 
-        if (dx < 0)
+        if (dx < 0) //map moves to the left
         {
             int sidewidth;
             uint8_t menu_width, area_map_width;
@@ -90,16 +90,26 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
             else
                 sidewidth = 0;
 
-            if (*window_x > mx - (w - sidewidth) + 2)
-                *window_x = mx - (w - sidewidth) + 2;
+            if (mx > (w - sidewidth) - 2)
+            {
+                if (*window_x > mx - (w - sidewidth) + 2)
+                    *window_x = mx - (w - sidewidth) + 2;
+            }
+            else
+                *window_x = 0;
         }
-        else if (*window_x < 0)
+        else if (*window_x <= 0)
             *window_x = 0;
 
-        if (*window_y < 0)
+        if (my > h - 2)
+        {
+            if (*window_y <= 0)
+                *window_y = 0;
+            else if (*window_y > my - h + 2)
+                *window_y = my - h + 2;
+        }
+        else
             *window_y = 0;
-        else if (*window_y > my - h + 2)
-            *window_y = my - h + 2;
     }
 
     return NULL;
