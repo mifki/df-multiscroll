@@ -25,6 +25,7 @@
 #include "df/graphic.h"
 #include "df/enabler.h"
 #include "df/viewscreen_dwarfmodest.h"
+#include "df/renderer.h"
 
 using df::global::world;
 using std::string;
@@ -41,6 +42,56 @@ CFMachPortRef etap;
 CFRunLoopSourceRef esrc;
 color_ostream *out2;
 
+// This is from g_src/renderer_opengl.hpp
+struct renderer_opengl : df::renderer
+{
+    void *sdlscreen;
+    int dispx, dispy;
+    GLfloat *vertexes, *fg, *bg, *tex;
+    int zoom_steps, forced_steps;
+    int natural_w, natural_h;
+    int off_x, off_y, size_x, size_y;
+bool needs_reshape;
+int needs_zoom;
+
+    virtual void allocate(int tiles) {};
+    virtual void init_opengl() {};
+    virtual void uninit_opengl() {};
+    virtual void draw(int vertex_count) {};
+    virtual void opengl_renderer_destructor() {};
+    virtual void reshape_gl() {};
+};
+
+struct renderer_cool : renderer_opengl
+{
+    // To know the size of renderer_opengl's fields
+    void *dummy;
+    GLfloat *gvertexes, *gfg, *gbg, *gtex;
+    int gdimx, gdimy, gdimxfull, gdimyfull;
+    int gdispx, gdispy;
+    bool gupdate;
+    float goff_x, goff_y, gsize_x, gsize_y;
+
+    renderer_cool()
+    {
+    gvertexes=0, gfg=0, gbg=0, gtex=0;
+    gdimx=0, gdimy=0;
+    gdispx=0, gdispy=0;
+    gupdate = 0;
+    goff_x=0, goff_y=0, gsize_x=0, gsize_y=0;
+
+    }
+
+    void reshape_graphics();
+
+    virtual void update_tile(int x, int y);
+    virtual void draw(int vertex_count);
+    virtual void reshape_gl();
+
+    virtual void update_tile_old(int x, int y) {}; //17
+    virtual void reshape_gl_old() {}; //18
+};
+
 CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
 {
     df::viewscreen * ws = Gui::getCurViewscreen();
@@ -50,30 +101,62 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     static float accdx = 0, accdy = 0;
     NSEvent *e = [NSEvent eventWithCGEvent:event];
 
+    static bool zooming;
     if (e.phase == NSEventPhaseBegan || e.momentumPhase == NSEventPhaseBegan)
+    {
         accdx = accdy = 0;
+        zooming = ([NSEvent modifierFlags] & NSCommandKeyMask);
+    }
+    if (zooming && !([NSEvent modifierFlags] & NSCommandKeyMask))
+        return NULL;
 
     accdx += [e scrollingDeltaX];
     accdy += [e scrollingDeltaY];
 
-    int dx = accdx / 16;
-    int dy = accdy / 16;
+    int dx = accdx / r->gdispx;
+    int dy = accdy / r->gdispy;
+
+
+    renderer_cool *r = (renderer_cool*)enabler->renderer;
+
+    if (zooming)
+    {
+        if (dy > 0)
+        {
+    accdx -= dx*gdispx;
+    accdy -= dy*gdispy;
+
+            r->needs_zoom = 1;
+            r->needs_reshape = true;
+        }
+        if (dy < 0)
+        {
+    accdx -= dx*gdispx;
+    accdy -= dy*gdispy;
+
+            renderer_cool *r = (renderer_cool*)enabler->renderer;
+            r->needs_zoom = -1;
+            r->needs_reshape = true;
+        }
+
+        return NULL;
+    }
 
     if (dx || dy)
     {
-        accdx -= dx*16;
-        accdy -= dy*16;
+        accdx -= dx*gdispx;
+        accdy -= dy*gdispy;
 
         *window_x -= dx;
         *window_y -= dy;
 
         int mx = world->map.x_count_block * 16;
         int my = world->map.y_count_block * 16;
-        int w = gps->dimx, h = gps->dimy;
+        int w = r->gdimxfull, h = r->gdimyfull;
 
         if (dx < 0) //map moves to the left
         {
-            int sidewidth;
+/*            int sidewidth;
             uint8_t menu_width, area_map_width;
             Gui::getMenuWidth(menu_width, area_map_width);
 
@@ -89,11 +172,11 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
                 sidewidth = 31; 
             else
                 sidewidth = 0;
-
-            if (mx > (w - sidewidth) - 2)
+*/
+            if (mx > w)
             {
-                if (*window_x > mx - (w - sidewidth) + 2)
-                    *window_x = mx - (w - sidewidth) + 2;
+                if (*window_x > mx - w)
+                    *window_x = mx - w;
             }
             else
                 *window_x = 0;
@@ -101,12 +184,12 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
         else if (*window_x <= 0)
             *window_x = 0;
 
-        if (my > h - 2)
+        if (my > h)
         {
             if (*window_y <= 0)
                 *window_y = 0;
-            else if (*window_y > my - h + 2)
-                *window_y = my - h + 2;
+            else if (*window_y > my - h)
+                *window_y = my - h;
         }
         else
             *window_y = 0;
