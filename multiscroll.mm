@@ -51,8 +51,6 @@ struct renderer_opengl : df::renderer
     int zoom_steps, forced_steps;
     int natural_w, natural_h;
     int off_x, off_y, size_x, size_y;
-bool needs_reshape;
-int needs_zoom;
 
     virtual void allocate(int tiles) {};
     virtual void init_opengl() {};
@@ -71,6 +69,8 @@ struct renderer_cool : renderer_opengl
     int gdispx, gdispy;
     bool gupdate;
     float goff_x, goff_y, gsize_x, gsize_y;
+    bool needs_reshape;
+    int needs_zoom;
 
     renderer_cool()
     {
@@ -113,26 +113,27 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     accdx += [e scrollingDeltaX];
     accdy += [e scrollingDeltaY];
 
+
+    renderer_cool *r = (renderer_cool*)enabler->renderer;
+
     int dx = accdx / r->gdispx;
     int dy = accdy / r->gdispy;
 
-
-    renderer_cool *r = (renderer_cool*)enabler->renderer;
 
     if (zooming)
     {
         if (dy > 0)
         {
-    accdx -= dx*gdispx;
-    accdy -= dy*gdispy;
+    accdx -= dx*r->gdispx;
+    accdy -= dy*r->gdispy;
 
             r->needs_zoom = 1;
             r->needs_reshape = true;
         }
         if (dy < 0)
         {
-    accdx -= dx*gdispx;
-    accdy -= dy*gdispy;
+    accdx -= dx*r->gdispx;
+    accdy -= dy*r->gdispy;
 
             renderer_cool *r = (renderer_cool*)enabler->renderer;
             r->needs_zoom = -1;
@@ -144,8 +145,8 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
 
     if (dx || dy)
     {
-        accdx -= dx*gdispx;
-        accdy -= dy*gdispy;
+        accdx -= dx*r->gdispx;
+        accdy -= dy*r->gdispy;
 
         *window_x -= dx;
         *window_y -= dy;
