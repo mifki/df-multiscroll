@@ -124,16 +124,16 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     {
         if (dy > 0)
         {
-    accdx -= dx*r->gdispx;
-    accdy -= dy*r->gdispy;
+            accdx -= dx*r->gdispx;
+            accdy -= dy*r->gdispy;
 
             r->needs_zoom = 1;
             r->needs_reshape = true;
         }
         if (dy < 0)
         {
-    accdx -= dx*r->gdispx;
-    accdy -= dy*r->gdispy;
+            accdx -= dx*r->gdispx;
+            accdy -= dy*r->gdispy;
 
             renderer_cool *r = (renderer_cool*)enabler->renderer;
             r->needs_zoom = -1;
