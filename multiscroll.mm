@@ -51,45 +51,18 @@ struct renderer_opengl : df::renderer
     int zoom_steps, forced_steps;
     int natural_w, natural_h;
     int off_x, off_y, size_x, size_y;
-
-    virtual void allocate(int tiles) {};
-    virtual void init_opengl() {};
-    virtual void uninit_opengl() {};
-    virtual void draw(int vertex_count) {};
-    virtual void opengl_renderer_destructor() {};
-    virtual void reshape_gl() {};
 };
 
 struct renderer_cool : renderer_opengl
 {
-    // To know the size of renderer_opengl's fields
-    void *dummy;
+    uint32_t dummy;
+
     GLfloat *gvertexes, *gfg, *gbg, *gtex;
     int gdimx, gdimy, gdimxfull, gdimyfull;
     int gdispx, gdispy;
-    bool gupdate;
     float goff_x, goff_y, gsize_x, gsize_y;
     bool needs_reshape;
     int needs_zoom;
-
-    renderer_cool()
-    {
-    gvertexes=0, gfg=0, gbg=0, gtex=0;
-    gdimx=0, gdimy=0;
-    gdispx=0, gdispy=0;
-    gupdate = 0;
-    goff_x=0, goff_y=0, gsize_x=0, gsize_y=0;
-
-    }
-
-    void reshape_graphics();
-
-    virtual void update_tile(int x, int y);
-    virtual void draw(int vertex_count);
-    virtual void reshape_gl();
-
-    virtual void update_tile_old(int x, int y) {}; //17
-    virtual void reshape_gl_old() {}; //18
 };
 
 CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
@@ -113,27 +86,37 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     accdx += [e scrollingDeltaX];
     accdy += [e scrollingDeltaY];
 
+    bool nextgen = (((renderer_cool*)enabler->renderer)->dummy == 'TWBT');
+    int dispx, dispy;
 
     renderer_cool *r = (renderer_cool*)enabler->renderer;
+    if (nextgen)
+    {
+        dispx = r->gdispx;
+        dispy = r->gdispy;
+    }
+    else
+    {
+        dispx = r->dispx;
+        dispy = r->dispy;
+    }
 
-    int dx = accdx / r->gdispx;
-    int dy = accdy / r->gdispy;
+    int dx = accdx / dispx;
+    int dy = accdy / dispy;
 
-
-    if (zooming)
+    if (nextgen && zooming)
     {
         if (dy > 0)
         {
-            accdx -= dx*r->gdispx;
-            accdy -= dy*r->gdispy;
+            accdy -= dy*dispy;
 
             r->needs_zoom = 1;
             r->needs_reshape = true;
         }
         if (dy < 0)
         {
-            accdx -= dx*r->gdispx;
-            accdy -= dy*r->gdispy;
+            accdx -= dx*dispx;
+            accdy -= dy*dispy;
 
             renderer_cool *r = (renderer_cool*)enabler->renderer;
             r->needs_zoom = -1;
@@ -145,39 +128,49 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
 
     if (dx || dy)
     {
-        accdx -= dx*r->gdispx;
-        accdy -= dy*r->gdispy;
+        accdx -= dx*dispx;
+        accdy -= dy*dispy;
 
         *window_x -= dx;
         *window_y -= dy;
 
         int mx = world->map.x_count_block * 16;
         int my = world->map.y_count_block * 16;
-        int w = r->gdimxfull, h = r->gdimyfull;
+        int w = nextgen ? r->gdimxfull : gps->dimx;
+        int h = nextgen ? r->gdimyfull : gps->dimx;
 
         if (dx < 0) //map moves to the left
         {
-/*            int sidewidth;
-            uint8_t menu_width, area_map_width;
-            Gui::getMenuWidth(menu_width, area_map_width);
+            int addw;
 
-            bool menuforced = (ui->main.mode != df::ui_sidebar_mode::Default || df::global::cursor->x != -30000);
-
-            if ((menuforced || menu_width == 1) && area_map_width == 2) // Menu + area map
-                sidewidth = 55;
-            else if (menu_width == 2 && area_map_width == 2) // Area map only
-                sidewidth = 24;
-            else if (menu_width == 1) // Wide menu
-                sidewidth = 55;
-            else if (menuforced || (menu_width == 2 && area_map_width == 3)) // Menu only
-                sidewidth = 31; 
+            if (nextgen)
+                addw = 0;
             else
-                sidewidth = 0;
-*/
-            if (mx > w)
             {
-                if (*window_x > mx - w)
-                    *window_x = mx - w;
+                int sidewidth;
+                uint8_t menu_width, area_map_width;
+                Gui::getMenuWidth(menu_width, area_map_width);
+
+                bool menuforced = (ui->main.mode != df::ui_sidebar_mode::Default || df::global::cursor->x != -30000);
+
+                if ((menuforced || menu_width == 1) && area_map_width == 2) // Menu + area map
+                    sidewidth = 55;
+                else if (menu_width == 2 && area_map_width == 2) // Area map only
+                    sidewidth = 24;
+                else if (menu_width == 1) // Wide menu
+                    sidewidth = 55;
+                else if (menuforced || (menu_width == 2 && area_map_width == 3)) // Menu only
+                    sidewidth = 31; 
+                else
+                    sidewidth = 0;
+
+                addw = sidewidth + 2;
+            }
+
+            if (mx > w - addw)
+            {
+                if (*window_x > mx - w + addw)
+                    *window_x = mx - w + addw;
             }
             else
                 *window_x = 0;
@@ -185,12 +178,14 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
         else if (*window_x <= 0)
             *window_x = 0;
 
-        if (my > h)
+        int addh = nextgen ? 0 : 2;
+
+        if (my > h - addh)
         {
             if (*window_y <= 0)
                 *window_y = 0;
-            else if (*window_y > my - h)
-                *window_y = my - h;
+            else if (*window_y > my - h + addh)
+                *window_y = my - h + addh;
         }
         else
             *window_y = 0;
@@ -201,6 +196,14 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
 
 DFhackCExport command_result plugin_init ( color_ostream &out, vector <PluginCommand> &commands)
 {
+    if (!enabler->renderer->uses_opengl())
+    {
+        out.color(COLOR_RED);
+        out << "MultiScroll: OpenGL renderer is required" << std::endl;
+        out.color(COLOR_RESET);
+        return CR_OK;        
+    }
+
     out2 = &out;
     ProcessSerialNumber curPSN;
     GetCurrentProcess(&curPSN);
