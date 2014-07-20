@@ -64,10 +64,10 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     accdx += [e scrollingDeltaX];
     accdy += [e scrollingDeltaY];
 
-    bool nextgen = (((renderer_cool*)enabler->renderer)->dummy == 'TWBT');
+    renderer_cool *r = (renderer_cool*)enabler->renderer;
+    bool nextgen = (r->dummy == 'TWBT');
     int dispx, dispy;
 
-    renderer_cool *r = (renderer_cool*)enabler->renderer;
     if (nextgen)
     {
         dispx = r->gdispx;
