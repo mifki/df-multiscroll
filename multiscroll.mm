@@ -112,10 +112,10 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
         *window_x -= dx;
         *window_y -= dy;
 
-        int mx = world->map.x_count_block * 16;
-        int my = world->map.y_count_block * 16;
+        int mx = world->map.x_count;
+        int my = world->map.y_count;
         int w = nextgen ? r->gdimxfull : gps->dimx;
-        int h = nextgen ? r->gdimyfull : gps->dimx;
+        int h = nextgen ? r->gdimyfull : gps->dimy;
 
         if (dx < 0) //map moves to the left
         {
