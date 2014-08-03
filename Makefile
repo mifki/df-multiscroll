@@ -6,7 +6,7 @@ DH ?= /Users/vit/Downloads/dfhack-$(DFHACKREL)
 
 SRC = multiscroll.mm
 DEP = 
-OUT = dist/dfhack-$(DFHACKREL)/multiscroll.plug.so
+OUT = dist/$(DFHACKVER)-$(DFHACKREL)/multiscroll.plug.so
 
 INC = -I"$(DH)/library/include" -I"$(DH)/library/proto" -I"$(DH)/depends/protobuf" -I"$(DH)/depends/lua/include"
 LIB = -L"$(DH)/build/library" -ldfhack
