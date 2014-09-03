@@ -65,8 +65,8 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     accdy += [e scrollingDeltaY];
 
     renderer_cool *r = (renderer_cool*)enabler->renderer;
-    bool nextgen = (r->dummy == 'TWBT');
-    int dispx, dispy;
+    bool nextgen = r->is_twbt();
+    /*int dispx, dispy;
 
     if (nextgen)
     {
@@ -77,24 +77,24 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
     {
         dispx = r->dispx;
         dispy = r->dispy;
-    }
+    }*/
 
-    int dx = accdx / dispx;
-    int dy = accdy / dispy;
+    int dx = accdx / 16;
+    int dy = accdy / 16;
 
     if (nextgen && zooming)
     {
         if (dy > 0)
         {
-            accdy -= dy*dispy;
+            accdy -= dy*16;
 
             r->needs_zoom = 1;
             r->needs_reshape = true;
         }
         if (dy < 0)
         {
-            accdx -= dx*dispx;
-            accdy -= dy*dispy;
+            accdx -= dx*16;
+            accdy -= dy*16;
 
             renderer_cool *r = (renderer_cool*)enabler->renderer;
             r->needs_zoom = -1;
@@ -106,8 +106,8 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
 
     if (dx || dy)
     {
-        accdx -= dx*dispx;
-        accdy -= dy*dispy;
+        accdx -= dx*16;
+        accdy -= dy*16;
 
         *window_x -= dx;
         *window_y -= dy;
