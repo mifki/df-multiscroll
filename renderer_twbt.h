@@ -75,13 +75,8 @@ struct renderer_cool : renderer_opengl
 
     DFHack::Gui::DwarfmodeDims map_dims()
     {
-        //7              int map_x1, map_x2, menu_x1, menu_x2, area_x1, area_x2;
-  //128              int y1, y2;
-  
-        DFHack::Gui::DwarfmodeDims dims = { .map_x1=1, .map_x2=gdimx, .menu_x1=0, .menu_x2=0, .area_x1=0, .area_x2=0, .y1=1, .y2=gdimy };
+        DFHack::Gui::DwarfmodeDims dims = { 1, gdimx, 0, 0, 0, 0, 1, gdimy };
         return dims;
-
-        //return return mkrect_xy(1, 1, gdimx, gdimy);
     };
 };
 
