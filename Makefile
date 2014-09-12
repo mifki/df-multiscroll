@@ -8,7 +8,13 @@ DH ?= /Users/vit/Downloads/dfhack-$(DFHACKREL)
 
 SRC = multiscroll.mm
 DEP = 
-OUT = dist/$(DFHACKVER)-$(DFHACKREL)/multiscroll.plug.so
+
+ifneq (,$(findstring 0.40,$(DFHACKVER)))
+	EXT = dylib
+else
+	EXT = so
+endif
+OUT = dist/$(DFHACKVER)-$(DFHACKREL)/multiscroll.plug.$(EXT)
 
 INC = -I"$(DH)/library/include" -I"$(DH)/library/proto" -I"$(DH)/depends/protobuf" -I"$(DH)/depends/lua/include"
 LIB = -L"$(DH)/build/library" -ldfhack
