@@ -1,20 +1,19 @@
-DFHACKVER ?= 0.34.11
-DFHACKREL ?= r5
+DFHACKVER ?= 0.34.11-r5
 
-DFMAJOR = `echo $(DFHACKVER) | sed s/\\\\.//g`
+DFVERNUM = `echo $(DFHACKVER) | sed -e s/-r.*// -e s/\\\\.//g`
 
 DF ?= /Users/vit/Desktop/df-r5
-DH ?= /Users/vit/Downloads/dfhack-$(DFHACKREL)
+DH ?= /Users/vit/Downloads/dfhack-master
 
 SRC = multiscroll.mm
-DEP = 
+DEP = Makefile
 
 ifneq (,$(findstring 0.40,$(DFHACKVER)))
 	EXT = dylib
 else
 	EXT = so
 endif
-OUT = dist/$(DFHACKVER)-$(DFHACKREL)/multiscroll.plug.$(EXT)
+OUT = dist/$(DFHACKVER)/multiscroll.plug.$(EXT)
 
 INC = -I"$(DH)/library/include" -I"$(DH)/library/proto" -I"$(DH)/depends/protobuf" -I"$(DH)/depends/lua/include"
 LIB = -L"$(DH)/build/library" -ldfhack
@@ -34,7 +33,7 @@ all: $(OUT)
 
 $(OUT): $(SRC) $(DEP)
 	-@mkdir -p `dirname $(OUT)`
-	$(CXX) $(SRC) -o $(OUT) -DDFHACK_VERSION=\"$(DFHACKVER)-$(DFHACKREL)\" -DDFHACK_$(DFHACKREL) -DDF_$(DFMAJOR) $(CFLAGS) $(LDFLAGS)
+	$(CXX) $(SRC) -o $(OUT) -DDFHACK_VERSION=\"$(DFHACKVER)\" -DDF_$(DFVERNUM) -DTWBT_VER=\"$(TWBT_VER)\" $(CFLAGS) $(LDFLAGS)
 
 inst: $(OUT)
 	cp $(OUT) "$(DF)/hack/plugins/"
