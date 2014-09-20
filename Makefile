@@ -33,7 +33,7 @@ all: $(OUT)
 
 $(OUT): $(SRC) $(DEP)
 	-@mkdir -p `dirname $(OUT)`
-	$(CXX) $(SRC) -o $(OUT) -DDFHACK_VERSION=\"$(DFHACKVER)\" -DDF_$(DFVERNUM) -DTWBT_VER=\"$(TWBT_VER)\" $(CFLAGS) $(LDFLAGS)
+	$(CXX) $(SRC) -o $(OUT) -DDFHACK_VERSION=\"$(DFHACKVER)\" -DDF_$(DFVERNUM) $(CFLAGS) $(LDFLAGS)
 
 inst: $(OUT)
 	cp $(OUT) "$(DF)/hack/plugins/"
