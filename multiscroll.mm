@@ -45,6 +45,11 @@ color_ostream *out2;
 
 CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
 {
+    if ((int)type < 0)
+        return NULL;
+    if (type != kCGEventScrollWheel)
+        return event;
+
     df::viewscreen * ws = Gui::getCurViewscreen();
     if (!strict_virtual_cast<df::viewscreen_dwarfmodest>(ws))
         return event;
