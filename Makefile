@@ -8,10 +8,10 @@ DH ?= /Users/vit/Downloads/dfhack-master
 SRC = multiscroll.mm
 DEP = Makefile
 
-ifneq (,$(findstring 0.40,$(DFHACKVER)))
-	EXT = dylib
-else
+ifneq (,$(findstring 0.34,$(DFHACKVER)))
 	EXT = so
+else
+	EXT = dylib
 endif
 OUT = dist/$(DFHACKVER)/multiscroll.plug.$(EXT)
 
