@@ -21,6 +21,7 @@
 #include "modules/MapCache.h"
 #include "modules/Gui.h"
 #include "modules/Screen.h"
+#include "df/world.h"
 #include "df/construction.h"
 #include "df/graphic.h"
 #include "df/enabler.h"
@@ -28,6 +29,7 @@
 #include "df/renderer.h"
 #include "renderer_twbt.h"
 
+using namespace DFHack;
 using df::global::world;
 using std::string;
 using std::vector;
