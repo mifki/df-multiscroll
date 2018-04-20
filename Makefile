@@ -4,6 +4,9 @@ DFVERNUM = `echo $(DFHACKVER) | sed -e s/-.*// -e s/\\\\.//g`
 
 DF ?= /Users/vit/Downloads/df_44_05_osx
 DH ?= /Users/vit/Downloads/buildagent-2/workspace/root/dfhack/0.44
+DHBUILD ?= build
+DHLIB ?= $(DH)/$(DHBUILD)/library
+ARCH ?= 64
 
 SRC = multiscroll.mm
 DEP = Makefile renderer_twbt.h
@@ -16,10 +19,10 @@ endif
 OUT = dist/$(DFHACKVER)/multiscroll.plug.$(EXT)
 
 INC = -I"$(DH)/library/include" -I"$(DH)/library/proto" -I"$(DH)/depends/protobuf" -I"$(DH)/depends/lua/include"
-LIB = -L"$(DH)/build/library" -ldfhack -ldfhack-version
+LIB = -L"$(DHLIB)" -ldfhack -ldfhack-version
 
-CFLAGS = $(INC) -m64 -DLINUX_BUILD -O3 -D_GLIBCXX_USE_CXX11_ABI=0
-LDFLAGS = $(LIB) -shared 
+CFLAGS = $(INC) -m$(ARCH) -DLINUX_BUILD -O3 -D_GLIBCXX_USE_CXX11_ABI=0
+LDFLAGS = $(LIB) -shared
 
 ifeq ($(shell uname -s), Darwin)
 	CXX = clang -std=gnu++0x -stdlib=libstdc++ -ObjC++

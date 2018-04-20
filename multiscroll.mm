@@ -145,7 +145,7 @@ CGEventRef MyEventTapCallBack (CGEventTapProxy proxy, CGEventType type, CGEventR
                 else if (menu_width == 1) // Wide menu
                     sidewidth = 55;
                 else if (menuforced || (menu_width == 2 && area_map_width == 3)) // Menu only
-                    sidewidth = 31; 
+                    sidewidth = 31;
                 else
                     sidewidth = 0;
 
@@ -186,7 +186,7 @@ DFhackCExport command_result plugin_init ( color_ostream &out, vector <PluginCom
         out.color(COLOR_RED);
         out << "MultiScroll: OpenGL renderer is required" << std::endl;
         out.color(COLOR_RESET);
-        return CR_OK;        
+        return CR_OK;
     }
 
     out2 = &out;
@@ -212,7 +212,7 @@ DFhackCExport command_result plugin_init ( color_ostream &out, vector <PluginCom
 
 DFhackCExport command_result plugin_shutdown ( color_ostream &out )
 {
-    CGEventTapEnable(etap, 0);    
+    CGEventTapEnable(etap, 0);
     CFRunLoopRemoveSource(CFRunLoopGetMain(), esrc, kCFRunLoopCommonModes);
     CFRelease(esrc);
     CFRelease(etap);
