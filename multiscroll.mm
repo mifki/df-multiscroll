@@ -21,25 +21,25 @@
 #include "modules/MapCache.h"
 #include "modules/Gui.h"
 #include "modules/Screen.h"
+#include "df/world.h"
 #include "df/construction.h"
 #include "df/graphic.h"
 #include "df/enabler.h"
 #include "df/viewscreen_dwarfmodest.h"
 #include "df/renderer.h"
-#include "df/world.h"
 #include "renderer_twbt.h"
 
-DFHACK_PLUGIN("multiscroll");
-REQUIRE_GLOBAL(world);
-REQUIRE_GLOBAL(enabler);
-REQUIRE_GLOBAL(gps);
-REQUIRE_GLOBAL(ui);
-REQUIRE_GLOBAL(window_x);
-REQUIRE_GLOBAL(window_y);
-
+using namespace DFHack;
+using df::global::world;
 using std::string;
 using std::vector;
-using namespace DFHack;
+using df::global::enabler;
+using df::global::gps;
+using df::global::ui;
+using df::global::window_x;
+using df::global::window_y;
+
+DFHACK_PLUGIN("multiscroll");
 
 CFMachPortRef etap;
 CFRunLoopSourceRef esrc;
